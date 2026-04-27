@@ -4,20 +4,20 @@ import sys
 
 app = Flask(__name__)
 
-LOG_FILE = sys.argv[1]
+FILE = sys.argv[1]
 
 @app.route("/")
 def index():
-  errors = extract_errors(LOG_FILE)
-  return render_template("index.html", errors=errors)
+    errors = extract_errors(FILE)
+    return render_template("index.html", errors=errors)
 
 @app.route("/download")
 def download():
-  errors = extract_errors(LOG_FILE)
+    errors = extract_errors(FILE)
 
-  with open("log.txt", "w") as f:
-    f.write("\n".join(errors))
+    with open("log.txt", "w") as f:
+        f.write("\n".join(errors))
 
-  	return send_file("log.txt", as_attachment=True)
+    return send_file("log.txt", as_attachment=True)
 
 app.run(host="0.0.0.0", port=8080)
