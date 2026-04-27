@@ -1,8 +1,8 @@
 import sys
-from parser import extract_errors
-from grouping import group_multiline
-from exporter import export_json
-from filters import filter_logs
+from serpent.parser import extract_errors
+from serpent.grouping import group_multiline
+from serpent.exporter import export_json
+from serpent.filters import filter_logs
 
 __version__ = "2.0.0"
 

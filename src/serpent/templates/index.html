@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Serpent Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<div class="dashboard-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">S</div>
+            <div>
+                <h1>SERPENT</h1>
+                <span>Dashboard</span>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <a class="nav-item active" href="#overview">Dashboard</a>
+            <a class="nav-item" href="#logs-panel">Logs</a>
+            <a class="nav-item" href="#tasks-panel">Tasks</a>
+            <a class="nav-item" href="#targets-panel">Targets</a>
+            <a class="nav-item" href="#modules-panel">Modules</a>
+            <a class="nav-item" href="#about-panel">About</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>v2.3.1</span>
+            <span class="status-dot"></span>
+            Running
+        </div>
+    </aside>
+
+    <main class="content">
+        <section id="overview" class="page-header">
+            <div>
+                <p class="eyebrow">STATUS</p>
+                <h2>RUNNING</h2>
+                <p class="subtext">Live monitor van je Serpent logbestand.</p>
+            </div>
+            <div class="page-actions">
+                <button id="refreshBtn" class="button secondary">Refresh</button>
+                <a class="button primary" href="/download">Download Logs</a>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card status-card">
+                <span>Uptime</span>
+                <strong id="uptime">{{ stats.uptime }}</strong>
+                <p>{{ 'Geen tijdstempel gevonden' if stats.uptime == 'n.v.t.' else 'Analyseert echte tijdgegevens' }}</p>
+            </article>
+            <article class="metric-card">
+                <span>Tasks</span>
+                <strong id="tasks-count">{{ stats.task_running }} running / {{ stats.task_completed }} completed</strong>
+                <p>Gebaseerd op echte task-logregels</p>
+            </article>
+            <article class="metric-card">
+                <span>Targets</span>
+                <strong id="target-count">{{ stats.targets_count }}</strong>
+                <p>Gevonden unieke IP's en hosts</p>
+            </article>
+            <article class="metric-card">
+                <span>Modules</span>
+                <strong id="module-count">{{ stats.module_count }}</strong>
+                <p>Gevonden geladen componenten</p>
+            </article>
+        </section>
+
+        <section class="summary-row">
+            <div class="summary-box">
+                <span>Total logs</span>
+                <strong id="total-count">{{ stats.total_lines }}</strong>
+            </div>
+            <div class="summary-box">
+                <span>Error events</span>
+                <strong id="error-count">{{ stats.error_lines }}</strong>
+            </div>
+            <div class="summary-box">
+                <span>Warnings</span>
+                <strong id="warning-count">{{ stats.levels.WARNING or 0 }}</strong>
+            </div>
+            <div class="summary-box">
+                <span>Info events</span>
+                <strong id="info-count">{{ stats.levels.INFO or 0 }}</strong>
+            </div>
+        </section>
+
+        <section class="log-panel" id="logs-panel">
+            <div class="log-panel-header">
+                <div>
+                    <h3>Live Logs</h3>
+                    <p>Laatste regels uit het logbestand, in realtime.</p>
+                </div>
+                <div class="filters">
+                    <label>
+                        Filter
+                        <select id="log-filter">
+                            <option value="ALL">All Logs</option>
+                            <option value="ERROR">Error</option>
+                            <option value="CRITICAL">Critical</option>
+                            <option value="PANIC">Panic</option>
+                            <option value="EXCEPTION">Exception</option>
+                            <option value="WARNING">Warning</option>
+                            <option value="INFO">Info</option>
+                            <option value="DEBUG">Debug</option>
+                        </select>
+                    </label>
+                    <button id="toggleAuto" class="button secondary">Auto-refresh aan</button>
+                </div>
+            </div>
+            <div id="log-output" class="log-output"></div>
+        </section>
+
+        <section class="detail-section" id="tasks-panel">
+            <h3>Tasks</h3>
+            <div class="detail-grid">
+                <article class="detail-card">
+                    <span>Running</span>
+                    <strong id="tasks-running">{{ stats.task_running }}</strong>
+                </article>
+                <article class="detail-card">
+                    <span>Completed</span>
+                    <strong id="tasks-completed">{{ stats.task_completed }}</strong>
+                </article>
+                <article class="detail-card full-card">
+                    <span>Task status</span>
+                    <strong>{{ stats.task_running }} actief, {{ stats.task_completed }} voltooid</strong>
+                </article>
+            </div>
+        </section>
+
+        <section class="detail-section" id="targets-panel">
+            <h3>Targets</h3>
+            <div class="detail-grid">
+                <article class="detail-card full-card">
+                    <span>Unieke targets</span>
+                    <strong>{{ stats.targets_count }} gevonden</strong>
+                </article>
+                <article class="detail-card full-card target-list">
+                    <span>Target lijst</span>
+                    <ul>
+                        {% for target in stats.targets[:8] %}
+                            <li>{{ target }}</li>
+                        {% endfor %}
+                        {% if stats.targets_count > 8 %}
+                            <li>.. en meer</li>
+                        {% endif %}
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="detail-section" id="modules-panel">
+            <h3>Modules</h3>
+            <div class="detail-grid">
+                <article class="detail-card full-card">
+                    <span>Loaded modules</span>
+                    <strong>{{ stats.module_count }}</strong>
+                </article>
+                <article class="detail-card full-card module-list">
+                    <span>Module lijst</span>
+                    <ul>
+                        {% for module in stats.modules[:8] %}
+                            <li>{{ module }}</li>
+                        {% endfor %}
+                        {% if stats.module_count > 8 %}
+                            <li>.. en meer</li>
+                        {% endif %}
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="about-section" id="about-panel">
+            <div class="about-card">
+                <h3>About Serpent</h3>
+                <p>Deze live dashboardweergave toont echte logdata uit je bestand. Statistieken worden automatisch bijgewerkt en geven je inzicht in de belangrijkste events.</p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+const refreshBtn = document.getElementById('refreshBtn');
+const toggleAuto = document.getElementById('toggleAuto');
+const logOutput = document.getElementById('log-output');
+const filterSelect = document.getElementById('log-filter');
+let autoRefresh = true;
+let refreshTimer = null;
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function updateToggleText() {
+    toggleAuto.textContent = autoRefresh ? 'Auto-refresh aan' : 'Auto-refresh uit';
+}
+
+async function loadSummary() {
+    try {
+        const response = await fetch('/api/summary');
+        const data = await response.json();
+        document.getElementById('total-count').textContent = data.total_lines;
+        document.getElementById('error-count').textContent = data.error_lines;
+        document.getElementById('warning-count').textContent = data.levels.WARNING || 0;
+        document.getElementById('info-count').textContent = data.levels.INFO || 0;
+        document.getElementById('tasks-count').textContent = `${data.task_running} running / ${data.task_completed} completed`;
+        document.getElementById('target-count').textContent = data.targets_count;
+        document.getElementById('module-count').textContent = data.module_count;
+        document.getElementById('tasks-running').textContent = data.task_running;
+        document.getElementById('tasks-completed').textContent = data.task_completed;
+        document.getElementById('uptime').textContent = data.uptime;
+    } catch (error) {
+        console.error('Summary load failed:', error);
+    }
+}
+
+async function loadLogs() {
+    try {
+        const filter = filterSelect.value;
+        const response = await fetch(`/api/logs?limit=200&level=${filter}`);
+        const data = await response.json();
+        logOutput.innerHTML = data.logs
+            .map(item => {
+                const safeText = item.text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `<div class="log-line ${item.level}"><span class="level">[${item.level}]</span> ${safeText}</div>`;
+            })
+            .join('');
+        if (data.total === 0) {
+            logOutput.innerHTML = '<div class="empty-state">Geen regels gevonden voor deze filter.</div>';
+        }
+        if (autoRefresh) {
+            document.title = `SERPENT • ${data.total} logs`;
+        }
+    } catch (error) {
+        logOutput.innerHTML = '<div class="empty-state">Kan logs niet laden.</div>';
+        console.error('Log load failed:', error);
+    }
+}
+
+function startAutoRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+    }
+    refreshTimer = setInterval(() => {
+        loadSummary();
+        loadLogs();
+    }, 5000);
+}
+
+function stopAutoRefresh() {
+    if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+    }
+}
+
+refreshBtn.addEventListener('click', () => {
+    loadSummary();
+    loadLogs();
+});
+
+toggleAuto.addEventListener('click', () => {
+    autoRefresh = !autoRefresh;
+    updateToggleText();
+    if (autoRefresh) {
+        startAutoRefresh();
+    } else {
+        stopAutoRefresh();
+    }
+});
+
+filterSelect.addEventListener('change', loadLogs);
+
+loadSummary();
+loadLogs();
+startAutoRefresh();
+updateToggleText();
+</script>
+</body>
+</html>

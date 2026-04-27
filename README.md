@@ -1,6 +1,6 @@
-# 🐍 Serpent v1.0.0
+# 🐍 Serpent v3.1.19
 
-![version](https://img.shields.io/badge/version-1.0.0-green)
+![version](https://img.shields.io/badge/version-3.1.19-green)
 
 Serpent is a lightweight log analyzer that detects:
 - Errors
@@ -28,5 +28,34 @@ It provides:
 ## 📦 Installation
 
 ```bash
-chmod +x install.sh
-./install.sh
+chmod +x Serpent_setup.sh
+./Serpent_setup.sh
+```
+
+## 🌐 Web dashboard
+
+Start de dashboard met een echt logbestandpad:
+
+```bash
+serpent /var/log/syslog --web
+```
+
+Open daarna:
+
+```bash
+http://127.0.0.1:8080
+```
+
+## 📌 Snel starten/stopen
+
+Start met het standaard `syslog`-bestand:
+
+```bash
+start77 /var/log/syslog
+```
+
+Stop de dashboard met:
+
+```bash
+kill77
+```

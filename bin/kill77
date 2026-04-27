@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Stop the Serpent web dashboard started by start77.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)/src"
+PYTHONPATH="$SRC_ROOT" python3 -m serpent.daemon stop
