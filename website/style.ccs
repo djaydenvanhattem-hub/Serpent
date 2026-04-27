@@ -1,0 +1,10 @@
+body {
+    background: black;
+    color: white;
+    text-align: center;
+    font-family: Arial;
+}
+
+h1 {
+    color: #22c55e;
+}
