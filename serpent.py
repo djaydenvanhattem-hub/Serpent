@@ -1,22 +1,24 @@
+__version__: "1.0.0"
+
+from parser import extract_errors
+import sys
+
 __version__ = "1.0.0"
 
-import sys
-from parser import extract_errors
-
 if len(sys.argv) < 2:
-  print("Usage: serpent logfile")
-  sys.exit(1)
+    print("Usage: serpent logfile")
+    exit()
 
-logfile = sys.argv[1]
+file = sys.argv[1]
 
-errors = extract_errors(logfile)
+errors = extract_errors(file)
 
-print(f"\n[Serpent] Found {len(errors)} issues:\n")
+print(f"\n[Serpent v{__version__}] Found {len(errors)} issues:\n")
 
 for e in errors:
     print(e)
 
 with open("log.txt", "w") as f:
-  f.write("\n".join(errors))
+    f.write("\n".join(errors))
 
-print("\n[Serpent] Saved to log.txt")
+print("\nSaved to log.txt")
