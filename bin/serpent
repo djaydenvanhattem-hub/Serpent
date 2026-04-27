@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Serpent Log Analyzer - Direct wrapper
+# This script works by directly executing Python modules
+# Get the installation directory from the parent of this script's directory
+INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SRC_DIR="$INSTALL_DIR/src"
+
+# Export PYTHONPATH for this process and children
+export PYTHONPATH="$SRC_DIR"
+
+# Parse arguments
+if [ "$1" == "--web" ]; then
+  LOGFILE="$2"
+  MODE="web"
+else
+  LOGFILE="$1"
+  MODE="cli"
+fi
+
+# Validate logfile argument
+if [ -z "$LOGFILE" ]; then
+  echo "Usage: serpent <logfile> [--web]"
+  exit 1
+fi
+
+# Execute the appropriate module
+if [ "$MODE" == "web" ]; then
+  python3 -m serpent.web "$LOGFILE"
+else
+  python3 -m serpent.serpent "$LOGFILE"
+fi

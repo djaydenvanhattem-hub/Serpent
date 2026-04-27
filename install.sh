@@ -109,40 +109,84 @@ chmod -R 755 "$INSTALL_DIR"
 find "$INSTALL_DIR" -type f -exec chmod 644 {} \;
 find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
 # Ensure bin scripts are executable
-chmod 755 "$INSTALL_DIR/bin/serpent.sh"
+chmod 755 "$INSTALL_DIR/bin/serpent"
 chmod 755 "$INSTALL_DIR/bin/start77"
 chmod 755 "$INSTALL_DIR/bin/kill77"
 
-# -----------------------------
-# 10. CLI INSTALL
-# -----------------------------
-echo "[10/10] Installing CLI..."
+# Remove obsolete serpent.sh if it exists
+[ -f "$INSTALL_DIR/bin/serpent.sh" ] && chmod 755 "$INSTALL_DIR/bin/serpent.sh"
 
-sudo ln -sf "$INSTALL_DIR/bin/serpent.sh" /usr/local/bin/serpent
+# Create global symlinks
+sudo ln -sf "$INSTALL_DIR/bin/serpent" /usr/local/bin/serpent
 sudo ln -sf "$INSTALL_DIR/bin/start77" /usr/local/bin/start77
 sudo ln -sf "$INSTALL_DIR/bin/kill77" /usr/local/bin/kill77
 
-# Ensure /usr/local/bin is in system PATH (multiple methods for compatibility)
-# Method 1: Add to /etc/profile.d (for all login shells)
-sudo tee /etc/profile.d/serpent-path.sh > /dev/null <<'EOF'
-export PATH="/usr/local/bin:$PATH"
-EOF
+sudo chmod 755 /usr/local/bin/serpent /usr/local/bin/start77 /usr/local/bin/kill77 2>/dev/null || true
+
+# CRITICAL: Configure PATH for all login methods
+echo "[10/10] Configuring system PATH..."
+
+# === METHOD 1: Add to /etc/profile.d (shell login sessions) ===
+sudo tee /etc/profile.d/serpent-path.sh > /dev/null <<'PATHEOF'
+# Ensure /usr/local/bin is in PATH
+if [[ ":$PATH:" != *":/usr/local/bin:"* ]]; then
+    export PATH="/usr/local/bin:$PATH"
+fi
+PATHEOF
 sudo chmod 644 /etc/profile.d/serpent-path.sh
 
-# Method 2: Add to /etc/environment (system-wide for all users)
-if ! grep -q "/usr/local/bin" /etc/environment; then
-    sudo sed -i 's|PATH="\(.*\)"|PATH="/usr/local/bin:\1"|' /etc/environment
+# === METHOD 2: Add to /etc/environment (system-wide PATH) ===
+if ! grep -q "/usr/local/bin" /etc/environment 2>/dev/null; then
+    echo 'PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"' | sudo tee /etc/environment > /dev/null
 fi
 
-# Method 3: Add to serpent user's .bashrc for direct access
-echo 'export PATH="/usr/local/bin:$PATH"' | sudo tee -a "/home/$SERPENT_USER/.bashrc" > /dev/null
+# === METHOD 3: Add to /etc/bash.bashrc (all bash shells) ===
+if ! grep -q "serpent-bash" /etc/bash.bashrc 2>/dev/null; then
+    {
+        echo ""
+        echo "# Serpent PATH - serpent-bash"
+        echo 'export PATH="/usr/local/bin:$PATH"'
+    } | sudo tee -a /etc/bash.bashrc > /dev/null
+fi
 
-# -----------------------------
+# === METHOD 4: Add to serpent user's .bashrc and .profile ===
+if [ -f "/home/$SERPENT_USER/.bashrc" ]; then
+    if ! grep -q "serpent-user" "/home/$SERPENT_USER/.bashrc" 2>/dev/null; then
+        {
+            echo ""
+            echo "# Serpent PATH - serpent-user"
+            echo 'export PATH="/usr/local/bin:$PATH"'
+        } | sudo tee -a "/home/$SERPENT_USER/.bashrc" > /dev/null
+    fi
+fi
+
+if [ -f "/home/$SERPENT_USER/.profile" ]; then
+    if ! grep -q "serpent-profile" "/home/$SERPENT_USER/.profile" 2>/dev/null; then
+        {
+            echo ""
+            echo "# Serpent PATH - serpent-profile"
+            echo 'export PATH="/usr/local/bin:$PATH"'
+        } | sudo tee -a "/home/$SERPENT_USER/.profile" > /dev/null
+    fi
+fi
+
+# ===========================
 # DONE
-# -----------------------------
+# ===========================
 echo ""
 echo "=================================="
 echo "✅ Serpent installed successfully!"
+echo "=================================="
+echo ""
+echo "User: $SERPENT_USER"
+echo "Path: $INSTALL_DIR"
+echo ""
+echo "Quick start:"
+echo "  serpent /var/log/syslog"
+echo "  serpent /var/log/syslog --web"
+echo "  start77 /var/log/syslog && kill77"
+echo ""
+echo "Note: Commands available after fresh login (su - serpent)"
 echo "=================================="
 echo ""
 echo "User: $SERPENT_USER"
