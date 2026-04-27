@@ -122,11 +122,20 @@ sudo ln -sf "$INSTALL_DIR/bin/serpent.sh" /usr/local/bin/serpent
 sudo ln -sf "$INSTALL_DIR/bin/start77" /usr/local/bin/start77
 sudo ln -sf "$INSTALL_DIR/bin/kill77" /usr/local/bin/kill77
 
-# Add /usr/local/bin to system-wide PATH via profile.d
-sudo tee /etc/profile.d/serpent-path.sh > /dev/null <<EOF
-export PATH="\$PATH:/usr/local/bin"
+# Ensure /usr/local/bin is in system PATH (multiple methods for compatibility)
+# Method 1: Add to /etc/profile.d (for all login shells)
+sudo tee /etc/profile.d/serpent-path.sh > /dev/null <<'EOF'
+export PATH="/usr/local/bin:$PATH"
 EOF
 sudo chmod 644 /etc/profile.d/serpent-path.sh
+
+# Method 2: Add to /etc/environment (system-wide for all users)
+if ! grep -q "/usr/local/bin" /etc/environment; then
+    sudo sed -i 's|PATH="\(.*\)"|PATH="/usr/local/bin:\1"|' /etc/environment
+fi
+
+# Method 3: Add to serpent user's .bashrc for direct access
+echo 'export PATH="/usr/local/bin:$PATH"' | sudo tee -a "/home/$SERPENT_USER/.bashrc" > /dev/null
 
 # -----------------------------
 # DONE
