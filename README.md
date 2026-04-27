@@ -1,6 +1,6 @@
-# 🐍 Serpent v3.1.19
+# 🐍 Serpent v3.2.11
 
-![version](https://img.shields.io/badge/version-3.1.19-green)
+![version](https://img.shields.io/badge/version-3.2.11-green)
 
 Serpent is a lightweight log analyzer that detects:
 - Errors
