@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Serpent</title>
+    <title>Serpent Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<h1>🐍 Serpent</h1>
+<h1>🐍 Serpent Dashboard</h1>
 
-<button onclick="window.location='/download'">
-    Download logs
-</button>
+<a href="/download">
+    <button>Download log.txt</button>
+</a>
 
 <ul>
     {% for error in errors %}
