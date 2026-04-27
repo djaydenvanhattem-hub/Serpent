@@ -108,6 +108,10 @@ echo "[9/10] Setting permissions..."
 chmod -R 755 "$INSTALL_DIR"
 find "$INSTALL_DIR" -type f -exec chmod 644 {} \;
 find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
+# Ensure bin scripts are executable
+chmod 755 "$INSTALL_DIR/bin/serpent.sh"
+chmod 755 "$INSTALL_DIR/bin/start77"
+chmod 755 "$INSTALL_DIR/bin/kill77"
 
 # -----------------------------
 # 10. CLI INSTALL
@@ -115,9 +119,14 @@ find "$INSTALL_DIR" -type d -exec chmod 755 {} \;
 echo "[10/10] Installing CLI..."
 
 sudo ln -sf "$INSTALL_DIR/bin/serpent.sh" /usr/local/bin/serpent
+sudo ln -sf "$INSTALL_DIR/bin/start77" /usr/local/bin/start77
+sudo ln -sf "$INSTALL_DIR/bin/kill77" /usr/local/bin/kill77
 
-# Add to serpent user's PATH
-echo 'export PATH="$PATH:/usr/local/bin"' >> "/home/$SERPENT_USER/.bashrc"
+# Add /usr/local/bin to system-wide PATH via profile.d
+sudo tee /etc/profile.d/serpent-path.sh > /dev/null <<EOF
+export PATH="\$PATH:/usr/local/bin"
+EOF
+sudo chmod 644 /etc/profile.d/serpent-path.sh
 
 # -----------------------------
 # DONE

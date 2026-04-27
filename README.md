@@ -27,35 +27,50 @@ It provides:
 
 ## 📦 Installation
 
+Run the installation script with sudo:
+
 ```bash
-chmod +x Serpent_setup.sh
-./Serpent_setup.sh
+sudo bash install.sh
 ```
 
-## 🌐 Web dashboard
+This will:
+1. Create a `serpent` system user
+2. Clone the repository
+3. Install Python dependencies (Flask)
+4. Set up global commands: `serpent`, `start77`, `kill77`
+5. Configure system PATH for the new user
 
-Start de dashboard met een echt logbestandpad:
+**Important**: After installation, the `serpent` user needs to log in fresh for the PATH changes to take effect (or run `source ~/.bashrc`).
+
+## 🌐 Web Dashboard
+
+### Option 1: Direct web mode
+Analyze a log file and start the web dashboard:
 
 ```bash
 serpent /var/log/syslog --web
 ```
 
-Open daarna:
+Then open your browser to: `http://localhost:8080`
 
-```bash
-http://127.0.0.1:8080
-```
-
-## 📌 Snel starten/stopen
-
-Start met het standaard `syslog`-bestand:
+### Option 2: Background daemon mode
+Start the dashboard in the background (default file: syslog):
 
 ```bash
 start77 /var/log/syslog
 ```
 
-Stop de dashboard met:
+Stop the background dashboard:
 
 ```bash
 kill77
+```
+
+## 📌 CLI Mode
+
+Analyze a log file from the command line:
+
+```bash
+serpent /var/log/syslog
+serpent /path/to/custom.log
 ```

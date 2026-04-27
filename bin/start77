@@ -4,6 +4,6 @@
 # Default logfile is /var/log/syslog when no file is given.
 
 FILE="${1:-/var/log/syslog}"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 SRC_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)/src"
 PYTHONPATH="$SRC_ROOT" python3 -m serpent.daemon "$FILE"
