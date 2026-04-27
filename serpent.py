@@ -1,3 +1,5 @@
+__version__ = "1.0.0"
+
 import sys
 from parser import extract_errors
 
