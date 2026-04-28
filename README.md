@@ -30,7 +30,7 @@ It provides:
 Run the installation script with sudo:
 
 ```bash
-sudo bash install.sh
+sudo ./Serpent_setup.sh
 ```
 
 This will:
